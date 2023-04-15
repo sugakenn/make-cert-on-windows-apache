@@ -17,9 +17,6 @@ SET PASSWORD_SV=%PASSWORD_CA%
 REM make cert dir
 if not exist %ROOTDIR% mkdir %ROOTDIR%
 
-REM make ca cert
-%OPENSSL% genrsa -aes256 -out %ROOTDIR%\ca.key 2048 -passin pass:%PASSWORD_CA%
-
 REM move to work folder
 cd /d %ROOTDIR%
 
@@ -27,7 +24,6 @@ REM clear ca serial
 if exist ca.srl del ca.srl
 
 REM make ca private key
-echo %PASSWORD_CA%
 %OPENSSL% genrsa -aes256 -out ca.key -passout pass:%PASSWORD_CA% 2048
 
 REM make ca csr
@@ -47,7 +43,7 @@ REM make apche server's private key
 %OPENSSL% genrsa -aes256 -out server.key -passout pass:%PASSWORD_SV% 2048
 
 REM make apache server's csr
-%OPENSSL% req -subj "/C=JP/ST=Tokyo/O=MyCom/CN=%IPADDRESS%" -new -key server.key -out server.csr -passin pass:%PASSWORD_SV%
+%OPENSSL% req -subj "/C=JP/ST=Tokyo/O=MyCom/CN=%IPADDRESS%" -new -key server.key -out server.csr -passin pass:%PASSWORD_CA%
 
 REM sign csr
 %OPENSSL% x509 -req -in server.csr -CA ca.crt -CAkey ca.key -days 730 -out server.crt -passin pass:%PASSWORD_SV% -extfile option.v3 -CAcreateserial
